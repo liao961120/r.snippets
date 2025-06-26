@@ -31,6 +31,21 @@ snippet cmdmodel
 	               init = write_init_files())
 	fit\$save_object("made/m_DIF.RDS")
 
+snippet validate_model
+	v = "${1:parameter}"
+	est = precis(fit, pars=v, depth=3)
+	true = dat[[v]]
+	plot(true, est$mean, ylim=range(est$q5, est$q95))
+	abline(0,1, lty="dashed")
+	for (i in 1:length(true)) {
+	    points(true[i], est$mean[i], col=2, pch=19)
+	    x_ = rep(true[i], 2)
+	    y_ = c(est$q5[i], est$q95[i])
+	    lines(x_, y_, col=stom::col.alpha(2), lwd=2)
+	}
+
+
+
 snippet lib
 	library(${1:package})
 
