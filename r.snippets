@@ -6,6 +6,30 @@ snippet trace
 	                      pars= c(pars("lp__"), v),
 	                      n_warmup = fit\$metadata()\$iter_warmup )
 
+snippet cmdmodel
+	# Fit model
+	write_init_files = function(dir="init", chains=1:4) {
+	    sapply( chains, function(chain) {
+	        init = tibble::lst(
+	            sc_D  = 1, 
+	            D     = rlnorm(nw, 0, sc_D),
+	            delta = rnorm(nw),
+	            DIF   = rnorm(nw),
+	            theta = rnorm(ns, -1.645720, 5)
+	        )
+	        dir.create(dir, showWarnings = F)
+	        fp = file.path(dir, paste0(chain,".json") )
+	        cmdstanr::write_stan_json(init, fp)
+	        fp
+	    })
+	}
+	set.seed(50)
+	m = cmdstanr::cmdstan_model("src/m_DIF.stan")
+	fit = m\$sample(data = dat, chains = 4, parallel_chains = 4,
+	               iter_warmup = 800, iter_sampling = 500,
+	               save_warmup = TRUE, refresh = 200,
+	               init = write_init_files())
+	fit\$save_object("made/m_DIF.RDS")
 
 snippet lib
 	library(${1:package})
